@@ -48,20 +48,16 @@ df.columns = parse_row(rows[1])
 def scrape_opening_day_single_team(team):
     team_response = requests.get(f'https://www.baseball-almanac.com/opening_day/odschedule.php?t={team}', headers=HEADERS)
     team_soup = Soup(team_response.text)
-
     tables = team_soup.find_all('table')
-
     team_table = tables[0]
     rows = team_table.find_all('tr')
-
     list_of_parsed_rows = [parse_row(row) for row in rows[2:-2]]
     df = DataFrame(list_of_parsed_rows)
     df.columns = parse_row(rows[1])
-
     # let's add in team as a column
     df['team'] = team
-
     return df
+
 
 df_mil = scrape_opening_day_single_team('MIL')
 df_mil.head()

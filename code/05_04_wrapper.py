@@ -5,11 +5,11 @@ import statsapi
 box_score = statsapi.boxscore(565997)
 print(box_score)
 
-standings = statsapi.standings(leagueId=104, date='10/05/2022')
+standings = statsapi.standings(leagueId=104, date='10/05/2023')
 print(standings)
 
 # standings_data
-sd = statsapi.standings_data(leagueId="103,104", season=2022)
+sd = statsapi.standings_data(leagueId="103,104", season=2023)
 
 # with open('./data/json/standings.json') as f:
 #     sd = json.load(f)
@@ -52,12 +52,12 @@ def process_player(player):
     flat_dict = {key: value for key, value
         in player.items()
         if type(value) is not dict}
-
+    #
     # adding fields that ARE nested to dict
     # note "get" syntax to avoid KeyError if field is missing
     flat_dict['position'] = player.get('primaryPosition', {}).get('abbreviation')
     flat_dict['team'] = player.get('currentTeam', {}).get('id')
-
+    #
     return flat_dict
 
 yankee_df = DataFrame([process_player(player) for player in yankee_roster])
@@ -86,27 +86,23 @@ len(tg_stats['stats'])
 tg_stats['stats'][0]
 
 def proc_stats1(player):
-
     # top level stats field -- list
     stats = player['stats'][0]
-
     # actual stats to return
     to_return = stats.get('stats', {})
-
     # add other info
     to_return['season'] = stats.get('season')
     to_return['type'] = stats.get('type')
-
+    #
     return to_return
 
 proc_stats1(tg_stats)
 
 def proc_stats2(player):
-
     # top level stats field -- list
     stat_list = player.get('stats', [])
     any_stats = len(stat_list) > 0
-
+    #
     if not any_stats:
         return {'player_id': player.get('id')}
     else:
@@ -115,10 +111,9 @@ def proc_stats2(player):
         # add other info
         to_return['season'] = stats.get('season')
         to_return['type'] = stats.get('type')
-
         # add player info
         to_return['player_id'] = player.get('id')
-
+        #
         return to_return
 
 
@@ -126,8 +121,7 @@ def stats_by_player(player_id, group):
     player_stats = statsapi.player_stat_data(player_id, group=group)
     return proc_stats2(player_stats)
 
-pitcher_df = DataFrame([stats_by_player(x, 'pitching') for x in
-                       player_df.query("position == 'P'")['id'].head(20)])
+pitcher_df = DataFrame([stats_by_player(x, 'pitching') for x in player_df.query("position == 'P'")['id'].head(20)])
 
 pitcher_df.head()
 

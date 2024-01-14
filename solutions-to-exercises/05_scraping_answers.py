@@ -7,30 +7,30 @@ import pandas as pd
 import requests
 from pandas import DataFrame
 
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
+
 ba_base_url = 'https://www.baseball-almanac.com'
 
 ###############################################################################
 # 5.1.1
 ###############################################################################
 
+# bal_response = requests.get('https://www.baseball-almanac.com/opening_day/odschedule.php?t=BAL', headers=HEADERS)
+# response = requests.get(_url, headers=_headers)
+url = ba_base_url +f'/opening_day/odschedule.php?t={team}'
+
 # starting point
 def scrape_opening_day_single_team(team):
-    team_response = requests.get(ba_base_url +
-                                 f'/opening_day/odschedule.php?t={team}')
+    team_response = requests.get(url, headers=HEADERS)
     team_soup = Soup(team_response.text)
-
     tables = team_soup.find_all('table')
-
     team_table = tables[0]
     rows = team_table.find_all('tr')
-
     list_of_parsed_rows = [_parse_row(row) for row in rows[2:-2]]
     df = DataFrame(list_of_parsed_rows)
     df.columns = _parse_row(rows[1])
-
     # let's add in team as a column
     df['team'] = team
-
     return df
 
 def _parse_row(row):
@@ -48,11 +48,9 @@ def _parse_row_with_link(row):
     """
     # parse the row like before and save it into a list
     parsed_row = [str(x.string) for x in row.find_all('td')]
-
     # now get the link
     # in a tag
     links = row.find_all('a')
-
     # opening day games < 1909 don't have box scores
     # in that case there's only one link (a tag) in the row, and we'll just
     # return our regular parsed row
@@ -64,22 +62,17 @@ def _parse_row_with_link(row):
         return parsed_row + [full_link]
 
 def scrape_opening_day_single_team_plus(team):
-    team_response = requests.get(ba_base_url +
-                                 f'/opening_day/odschedule.php?t={team}')
+    # team_response = requests.get(ba_base_url + f'/opening_day/odschedule.php?t={team}')
+    team_response = requests.get(url, headers=HEADERS)
     team_soup = Soup(team_response.text)
-
     tables = team_soup.find_all('table')
-
     team_table = tables[0]
     rows = team_table.find_all('tr')
-
     list_of_parsed_rows = [_parse_row_with_link(row) for row in rows[2:-2]]
     df = DataFrame(list_of_parsed_rows)
     df.columns = _parse_row(rows[1]) + ['boxscore_link']
-
     # let's add in team as a column too
     df['team'] = team
-
     return df
 
 df_mil = scrape_opening_day_single_team_plus('MIL')
@@ -96,7 +89,7 @@ def time_and_place(url):
         return ""
     bs_response = requests.get(url)
     bs_soup = Soup(bs_response.text)
-
+    #
     banner_tag = bs_soup.find('td', {'class': 'banner'})
     return str(banner_tag.text)
 

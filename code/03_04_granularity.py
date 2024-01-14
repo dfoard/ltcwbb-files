@@ -29,8 +29,7 @@ atbats.groupby('g_id').agg(
 
 atbats.groupby('g_id').agg({'strikeout': ['sum', 'mean']}).head()
 
-totals_by_game_team = atbats.groupby(
-    ['g_id', 'batter_team']).sum()[sum_cols].head()
+totals_by_game_team = atbats.groupby(['g_id', 'batter_team']).sum()[sum_cols].head()
 
 totals_by_game_team
 

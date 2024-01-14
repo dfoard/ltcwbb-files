@@ -60,13 +60,13 @@ aus.get('division', {}).get('id')
 
 def flatten_team(nested):
     flat = {key: value for key, value in nested.items() if type(value) is not dict}
-
+    #
     flat['league_name'] = nested.get('league', {}).get('name')
     flat['league_id'] = nested.get('league', {}).get('id')
     flat['sport_id'] = nested.get('sport', {}).get('id')
     flat['venue_id'] = nested.get('venue', {}).get('id')
     flat['division_id'] = nested.get('division', {}).get('id')
-
+    #
     return flat
 
 df_teams = DataFrame([flatten_team(x) for x in teams_json['teams']])
@@ -122,7 +122,7 @@ def get_roster_by_team(team_id):
     rosters_url = f'https://statsapi.mlb.com/api/v1/teams/{team_id}/roster'
     rosters_resp = requests.get(rosters_url)
     rosters_json = rosters_resp.json()
-
+    #
     rosters_flat = [flatten_player(x) for x in rosters_json['roster']]
     df = DataFrame(rosters_flat)
     df['team_id'] = team_id

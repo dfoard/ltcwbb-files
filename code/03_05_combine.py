@@ -5,7 +5,7 @@ from os import path
 # stored
 # on Windows it might be something like 'C:/mydir'
 
-DATA_DIR = '/Users/nathan/baseball-book/data'
+# DATA_DIR = '/Users/nathan/baseball-book/data'
 DATA_DIR = './data'
 
 pg = pd.read_csv(
@@ -104,8 +104,8 @@ top_so = (st[['teamID', 'SO']]
           .head(20)
           .set_index('teamID'))
 
-top_hr.head()
-pd.concat([top_hr, top_so], axis=1).sort_index().head()
+pd.concat([top_hr, top_so], axis=1).sort_index().head()top_hr.head()
+
 
 top_bb = (st[['teamID', 'BB']]
             .sort_values('BB', ascending=False)

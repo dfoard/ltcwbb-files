@@ -6,7 +6,8 @@ from os import path
 # stored
 # on Windows it might be something like 'C:/mydir'
 
-DATA_DIR = '/Users/nathan/baseball-book/data'
+# DATA_DIR = '/Users/nathan/baseball-book/data'
+DATA_DIR = 'C:\\Users\David\OneDrive\Programming\ltcwbb-files\data'
 
 games = pd.read_csv(path.join(DATA_DIR, '100-game-sample', 'games.csv'))
 games.set_index('g_id', inplace=True)

@@ -9,7 +9,8 @@ import sqlite3
 # only need to run this section once
 
 # handle directories
-DATA_DIR = '/Users/nathan/baseball-book/data'
+# DATA_DIR = '/Users/nathan/baseball-book/data'
+DATA_DIR = './data'
 HUNDRED_DIR = path.join(DATA_DIR, '100-game-sample')
 
 # create connection
@@ -52,7 +53,7 @@ df.head()
 # filtering
 ###########
 
-# basic filter, only rows where team is MIA
+# basic filter, only rows where games were only played in Camden Yards
 df = pd.read_sql(
     """
     SELECT g_id, home_team, away_team, elapsed_time as length
@@ -86,6 +87,7 @@ df = pd.read_sql(
     FROM game
     WHERE home_team IN ('COL', 'CIN')
     """, conn)
+df.head()
 
 # negation with NOT
 df = pd.read_sql(
@@ -142,6 +144,21 @@ df = pd.read_sql(
         team.divID
     FROM player, team
     WHERE team.teamID = player.team
+    """, conn)
+df.head()
+
+# use an explicit join
+df = pd.read_sql(
+    """
+    SELECT
+        player.first_name,
+        player.last_name,
+        player.team,
+        team.lgID,
+        team.divID
+    FROM player
+         inner join team
+         on player.team = team.teamID
     """, conn)
 df.head()
 
@@ -213,6 +230,43 @@ df = pd.read_sql(
     """, conn)
 df.head()
 
+# remove duplicated columns
+
+
+# adding a third table - shorthand
+df = pd.read_sql(
+    """
+    SELECT
+        p.first_name,
+        p.last_name,
+        p.team,
+        t.lgID,
+        t.divID,
+        pg.*
+    FROM player AS p, team AS t, player_game AS pg
+    WHERE
+        t.teamID = p.team AND
+        pg.batter_id = p.id
+    """, conn)
+df.head()
+
+# adding an additional filter
+df = pd.read_sql(
+    """
+    SELECT
+        p.first_name,
+        p.last_name,
+        p.team,
+        t.lgID,
+        t.divID,
+        pg.opp, pg.rbi, pg.strikeout, pg.out, pg.n_atbats, pg.homerun, pg.hit
+    FROM player AS p, team AS t, player_game AS pg
+    WHERE
+        t.teamID = p.team AND
+        pg.batter_id = p.id AND
+        p.team = 'NYN'
+    """, conn)
+df.head()
 
 
 ###########
@@ -225,6 +279,13 @@ df.head()
 
 # SELECT TOP 5 *
 # FROM player
+df = pd.read_sql(
+    """
+    SELECT *
+    FROM game
+    LIMIT 5
+    """, conn)
+df.head()
 
 df = pd.read_sql(
     """
@@ -258,6 +319,7 @@ df = pd.read_sql(
             player.position = 'fielder') AS a
     LEFT JOIN player_game AS b ON a.g_id = b.g_id AND a.id = b.batter_id
     """, conn)
+df.head()
 
 df.query("last_name == 'Acuna'")
 
@@ -275,4 +337,41 @@ df = pd.read_sql(
         game.away_team = player.team AND
         player.position = 'fielder'
     """, conn)
+df.head()
 
+# select AL East batters only and display date, team, batter, opp, at_bats , hits and homeunrs
+df = pd.read_sql(
+    """
+    SELECT
+        g.date,
+        g.home_team as home,
+        g.away_team as opp,
+        p.first_name,
+        p.last_name,
+        pg.n_atbats as AT_BATS, 
+        pg.homerun as HR, 
+        pg.hit as HIT
+    FROM player AS p, team AS t, player_game AS pg, game as g
+    WHERE
+        t.teamID = p.team AND
+        pg.batter_id = p.id AND
+        pg.g_id = g.g_id AND
+        t.lgID = 'AL' AND 
+        t.divID = 'E'
+    """, conn)
+df.head()
+
+df = pd.read_sql(
+    """
+    SELECT
+        g.*,
+        t.name 
+    FROM player AS p, team AS t, player_game AS pg, game as g
+    WHERE
+        t.teamID = p.team AND
+        pg.batter_id = p.id AND
+        pg.g_id = g.g_id AND
+        t.lgID = 'AL' AND 
+        t.divID = 'E'
+    """, conn)
+df.head()
